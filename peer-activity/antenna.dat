@@ -1,0 +1,22 @@
+data;
+
+set Z := Z1 Z2 Z3 Z4 Z5;
+
+set S := S1 S2 S3 S4;
+
+param DELTA := 5;
+param delta := 4;
+
+param p := 
+	S1 Z1 6
+	S1 Z2 7
+	S1 Z3 6
+	#S1 Z4 9
+	#S1 Z5 5
+	S2 Z1 8
+	S3 Z2 5
+	S3 Z3 5
+	S3 Z4 2
+	S4 Z4 6
+	S4 Z2 4
+;

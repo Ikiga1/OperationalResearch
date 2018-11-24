@@ -1,0 +1,83 @@
+\documentclass[1pt]{article}
+\usepackage {tikz}
+\usetikzlibrary {arrows,automata}
+\usepackage{amssymb}
+\usepackage{listings}
+\usepackage{pdfpages}
+\usepackage{caption}
+\usepackage[nottoc]{tocbibind}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+
+\def\X#1{$#1$ &\tt\string#1}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+\makeatletter
+\let\@fnsymbol\@arabic
+\makeatother
+\title{\huge \textrm{Supermarket and Clerks}}
+
+\date{\textrm{Politecnico di Milano, \\15 November 2018}}
+
+
+\begin{document}
+
+	\pagenumbering{gobble}
+	\begin{titlepage}
+		\maketitle
+	\end{titlepage}
+
+	\pagenumbering{arabic}
+
+	\newpage
+	\section{Introduction to the Problem}
+		We are given a problem: we have to minimize the cost of clerks working in a supermarket using linear programming, find the dual problem and give an interpretation of it.\\
+		We are provided with: 
+		\begin{itemize}
+			\item $d = \{M, T, W, Th, F, S, Su\}$, the set of days in the week. 
+			\item $b_d$, minimum number of clerks required in day $d$.
+			\item $c_d$, cost of salary for the shift beginning in day $d$.
+		\end{itemize}
+		We also know that each clerk has to work 5 consecutive days and then has 2 days of rest.
+	\section{Solution}
+		I thought to model the problem as follows.\\
+		To start with I introduce a variable 
+		\begin{align}
+		x &= \begin{bmatrix}
+           x_{1} \\
+           x_{2} \\
+           \vdots \\
+           x_{7}
+         \end{bmatrix}
+		\end{align}
+		that represents the number of clerks starting to work on the $i-th$ day. From now on I consider $b$ and $c$ as the column vectors with the meaning specified on the previous section.\\
+		It is possible to formulate the problem as:
+		\begin{itemize}
+			\item min ($\boldsymbol{x}\boldsymbol{c^T}$)
+			\item $\boldsymbol{Ax} \geqslant \boldsymbol{b}$
+			\item $\boldsymbol{x} \geqslant 0$
+		\end{itemize}
+		Since the number of clerks working on day $i$ is equal to the sum of all the clerks that started to work in the 4 days before $i$ and on $i$ itself, the matrix $A$ is defined as:
+		\begin{align}
+		A &= \begin{bmatrix}
+				1 & 0 & 0 & 1 & 1 & 1 & 1 \\
+				1 & 1 & 0 & 0 & 1 & 1 & 1 \\
+				1 & 1 & 1 & 0 & 0 & 1 & 1 \\
+				1 & 1 & 1 & 1 & 0 & 0 & 1 \\
+				1 & 1 & 1 & 1 & 1 & 0 & 0 \\
+				0 & 1 & 1 & 1 & 1 & 1 & 0 \\
+				0 & 0 & 1 & 1 & 1 & 1 & 1 \\
+             \end{bmatrix}
+		\end{align}
+		\newpage
+		To get the dual problem, I define the $y$ (column vector) variable and following the table reported on the slides for the correspondence of primal-dual, the dual problem result as:
+		\begin{itemize}
+			\item max ($\boldsymbol{yb^T}$)
+			\item $\boldsymbol{A^Ty} \leqslant \boldsymbol{c}$
+			\item $\boldsymbol{y} \geqslant 0$
+		\end{itemize}
+		We can imagine $y$ to represent the cost of work of clerks on day $i$. Clerks wants to maximize the total profit they can make, given the budget of the supermarket on the day $i$ (and the number of working clerks on day $i$).
+
+\end{document}

@@ -1,0 +1,239 @@
+\documentclass[1pt]{article}
+\usepackage {tikz}
+\usetikzlibrary {arrows,automata}
+\usepackage{amssymb}
+\usepackage{listings}
+%block scheme
+\usepackage{pdfpages}
+\usepackage{caption}
+%preamble
+\usepackage[nottoc]{tocbibind}
+\usepackage[T1]{fontenc}
+%syllabus check
+\usepackage[italian]{babel}
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{systeme}
+
+
+\def\X#1{$#1$ &\tt\string#1}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+\makeatletter
+\let\@fnsymbol\@arabic
+\makeatother
+\title{\huge \textrm{Optimal Strategy Proof}}
+\date{\textrm{Politecnico di Milano, \\24 November 2018}}
+
+
+\begin{document}
+
+	\pagenumbering{gobble}
+	\begin{titlepage}
+		\maketitle
+	\end{titlepage}
+
+	\pagenumbering{arabic}
+
+	\newpage
+	\section{Introduction to the Problem}
+		We are given a problem:
+		\begin{itemize}
+			\item max $\sum_{i=1}^n c_iy_i$
+			\item $\sum_{i=1}^n a_iy_i \leqslant b$
+			\item $0 \leqslant y_i \leqslant 1$, $i = 1,...,n$  
+		\end{itemize}
+		We are also given a pseudocode that should be an the algorithm that finds an  optimal solution to this problem:\\\\
+		sort indexes so that $i<j \Rightarrow \dfrac{c_i}{a_i} \geqslant \dfrac{c_j}{a_j}$\\
+		i \gets 1;\\
+		repeat\\
+		\{\\
+		$y_i \gets min\{1,\dfrac{b}{a_i}\}$;\\
+		$b \gets b - y_ia_i$;\\
+		$i \gets i+1$;\\
+		\}\\
+		until b=0 or $i>n$\\\\
+		We have to prove that the solution is optimal using linear programming and complementary dual solution.
+
+	\section{Solution}
+	Assuming that $b>0$ and $a_i>0$ (seems reasonable).\\
+	The solution proposed (considering the sorting of $(c_i,a_i)$ couples) is a vector $\hat{y}$ such that there is an index $1 \leqslant r \leqslant |\hat{y}|$ such that $\forall i < r:$ $y_i = 1$, $y_r \in \{0,1\}$ or $y_r = \dfrac{b-\sum_{i=0}^{r-1} a_i}{a_r}$, $\forall i>r:$ $y_i=0$. \\
+	To prove its optimality, the idea is to exploit the complementary slackness properties.\\
+	\subsection{Definitions} 
+	Lets rewrite the problem a bit!\\
+	I will call $\boldsymbol y$ the column vector for our variable.\\
+	I will call $\boldsymbol A$ the matrix of size $1 + |\boldsymbol y| \cdot |\boldsymbol y|$, defined as follows:
+	\begin{align}
+	\boldsymbol A &= \begin{bmatrix}
+			a_1 & a_2 & a_3 & ... & a_{|\boldsymbol y|} \\
+			1 & 0 & 0 & ... & 0 \\
+			0 & 1 & 0 & ... & 0 \\
+			0 & 0 & 1 & ... & 0 \\
+			0 & 0 & 0 & ... & 0 \\
+			. & . & . & . & .\\
+			. & . & . & . & .\\
+			. & . & . & . & .\\
+			0 & 0 & 0 & ... & 1 \\
+	     \end{bmatrix}
+	\end{align}
+	I will call $\boldsymbol c$ the row vector containing the $c_i$ elements.\\
+	I will call $\boldsymbol b$ the column vector of length $1+|\boldsymbol y|$ defined as follows:
+	\begin{align}
+	\boldsymbol b &= \begin{bmatrix}
+			b \\
+			1   \\
+			1   \\
+			1   \\
+			.   \\
+			.   \\
+			.   \\
+			1   \\
+	     \end{bmatrix}
+	\end{align}
+	The problem can now be rewritten as:
+	\begin{itemize}
+		\item max $\boldsymbol{cy}$
+		\item $\boldsymbol{Ay} \leqslant \boldsymbol{b}$
+		\item $\boldsymbol{y} \geqslant 0$ 
+	\end{itemize}
+	Given a column vector $\boldsymbol x$, the dual will be:
+	\begin{itemize}
+		\item min $\boldsymbol{xb}$
+		\item $\boldsymbol{xA} = \boldsymbol{c}$
+		\item $x \geqslant 0$
+	\end{itemize}
+\newpage
+	\subsubsection{Proof}
+	The proof leverages on \\\\
+	\emph{$\boldsymbol{Theorem 4.1}$}: \\
+	\emph{Let $\hat{p}$ and $\hat{d}$ be feasible solutions for the primal and the dual problem, \\respectively. Then the following properties are equivalent:}\\
+	i) $\hat{p}$ and $\hat{d}$ are optimal solutions;\\
+	ii) $c\hat{p} = \hat{d}b$;\\
+	iii) $\hat{d}(b-A\hat{p}) = 0$;\\\\
+	and\\\\
+	\emph{$\boldsymbol{Theorem 4.2}$}: \\
+	\emph{Let $\hat{p}$ and $\hat{d}$ be feasible solutions for the primal and the dual problem, \\respectively: then $\hat{p}$ and $\hat{d}$ are optimal solutions if and only if:}\\
+	$\hat{d}(b_i-A_i\hat{p} = 0)$, $i=1,...,m$\\
+	$(\hat{d}A^j-c_j)\hat{p_j} = 0$, $j=1,...,n$\\\\
+	As we said at the beginning:
+		\begin{align}
+	\hat{p} &= \begin{bmatrix}
+			1 & ... & 1 & k & 0 & ... & 0
+	     \end{bmatrix}
+	\end{align}
+	Let's take $k \in [0,1]$ that can vary its position between 1 and |$\hat{p}$|.\\
+	Let's call $r$ the position of the element k.\\
+	Let's use the \emph{Theorem 4.2} and write the system to check if our solution is feasible.\\
+	\[\begin{bmatrix}
+	d_1 & d_2 & ... & d_{r+1} & ... & d_{1+|\hat{p}|}
+	\end{bmatrix}
+	%
+	\left(\begin{bmatrix}
+	b\\
+	1\\
+	1\\
+	.\\
+	.\\
+	.\\
+	1\\
+	1\\
+	\end{bmatrix}%
+	-
+	% 
+	\begin{bmatrix}
+	a_1 & a_2 & ... & a_r & ... & a_{|\hat{p}|}\\
+	1   &  0  & ... & 0   & ... & 0\\
+	0   &  1  & ... & 0   & ... & 0\\
+	.   &  .  & . & .  & . & .\\
+	.   &  .  & . & .  & . & .\\
+	.   &  .  & . & .  & . & .\\
+	.   &  .  & . & .  & . & .\\
+	0   &  0  & ... & 0   & ... & 1
+	\end{bmatrix}
+	\begin{bmatrix}
+	1\\
+	1\\
+	.\\
+	k_r\\
+	.\\
+	.\\
+	0_{|\hat{p}|}\\
+	\end{bmatrix}\right)%
+	 = 
+	0
+	\]
+	Becomes:
+	\[\begin{bmatrix}
+	d_1 & d_2 & ... & d_{r+1} & ... & d_{1+|\hat{p}|}
+	\end{bmatrix}
+	%
+	\begin{bmatrix}
+	b - (\sum_{i=0}^{r-1} a_i + a_rk)\\
+	0\\
+	0\\
+	...\\
+	(1-k)_{r+1}\\
+	...\\
+	1\\
+	1\\
+	\end{bmatrix}%
+	 = 
+	0
+	\]
+	From which we get the following system:\\
+	\[ \left\{\begin{aligned}
+		d_1(\sum_{i=0}^{r-1} a_i + a_rk) & = 0 \\
+		d_{r+1}(1-k) = 0\\
+		d_{r+2} = 0\\
+		...\\
+		d_{1+|\hat{p}|} = 0\\
+		\end{aligned}	\right.
+	 \]%
+	We can have a look at the second set of equations:
+	\[\left(\begin{bmatrix}
+	d_1 & d_2 & ... & d_{r+1} & ... & d_{1+|\hat{p}|}
+	\end{bmatrix}
+	%
+	\begin{bmatrix}
+	a_1 & a_2 & ... & a_r & ... & a_{|\hat{p}|}\\
+	1   &  0  & ... & 0   & ... & 0\\
+	0   &  1  & ... & 0   & ... & 0\\
+	.   &  .  & . & .  & . & .\\
+	.   &  .  & . & .  & . & .\\
+	.   &  .  & . & .  & . & .\\
+	.   &  .  & . & .  & . & .\\
+	0   &  0  & ... & 0   & ... & 1
+	\end{bmatrix}
+	-
+	% 
+	\begin{bmatrix}
+	c_1 & c_2 & ... & c_r & ... & c_{|\hat{p}|}
+	\end{bmatrix}\right)
+	\begin{bmatrix}
+	1\\
+	1\\
+	.\\
+	k_r\\
+	.\\
+	.\\
+	0_{|\hat{p}|}\\
+	\end{bmatrix}%
+	 = 
+	0
+	\]
+	From which we get another system:\\
+	\[ \left\{\begin{aligned}
+		a_1 d_1 + d2 & = c_1 \\
+		...\\
+		a_i d_1 + d_{i+1} & = c_i\\
+		...\\
+		(a_r d_1 + d_{r+1} -c_r)k & = 0\\
+		\end{aligned}	\right.
+	 \]%
+	Considering the two systems and the case in which $k \in (0,1)$ we can easily notice that $d_{r+1}=0$. \\So $d_1 = \dfrac{c_r}{a_r}$. \\Follows that $d_1>0$ and from the first equation $k = \dfrac{b-\sum_{i=0}^{r-1} a_i}{a_r}$ which is perfectly in line with our algorithm.\\
+	We can than notice that for all other i: $d_i = c_i - \dfrac{a_ic_r}{a_r}$.\\
+	Considering the HP $i<j \Rightarrow \dfrac{c_i}{a_i} \geqslant \dfrac{c_j}{a_j}$, all $d$ are positive and the solution is feasible therefore optimal.\\\\
+	Considering the case in which $k=0$ we can spot $d_1(\sum_{i=0}^{r-1} a_i)=0$ and $d_{r+1} = 0$.\\ The other $d$ are arbitrary or equal to a cost. The solution is feasible and optimal.\\\\
+	Considering the case in which $k=1$ we can see that $d_1 = 0$, $d_{r_1} = c_r$ and the situation is exactly the same as the one above mentioned. Even in this case the solution provided by the algorithm is optimal.
+\end{document}

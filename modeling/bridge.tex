@@ -1,0 +1,87 @@
+\documentclass[1pt]{article}
+\usepackage {tikz}
+\usetikzlibrary {arrows,automata}
+\usepackage{amssymb}
+\usepackage{listings}
+%block scheme
+\usepackage{pdfpages}
+\usepackage{caption}
+%preamble
+\usepackage[nottoc]{tocbibind}
+\usepackage[T1]{fontenc}
+%syllabus check
+\usepackage[italian]{babel}
+
+\usepackage{amsmath}
+
+\def\X#1{$#1$ &\tt\string#1}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+\makeatletter
+\let\@fnsymbol\@arabic
+\makeatother
+\title{\huge \textrm{Crossing The Bridge}}
+\date{\textrm{Politecnico di Milano, \\10 October 2018}}
+
+
+\begin{document}
+
+	\pagenumbering{gobble}
+	\begin{titlepage}
+		\maketitle
+	\end{titlepage}
+
+	\pagenumbering{arabic}
+
+	\newpage
+	\section{Introduction to the Problem}
+		We are given a problem to model as a graph. \\
+		The key points of the problem are the following: 
+		\begin{itemize}
+			\item There are 4 people that need to cross a bridge.
+			\item The bridge can only stand 2 people at a time.
+			\item It's dark and the 4 people only have 1 torch, nobody will cross the bridge without a torch.
+			\item Each person walk at a different pace.
+			\item They want to minimize the time it takes to cross the bridge for all the 4 people.
+		\end{itemize}
+
+		Here is the table that relates each person to his crossing time.
+		\begin{table}[h]
+			\centering
+			\begin{tabular}{lllll}
+				Person & 1 & 2 & 3 & 4  \\
+				Time   & 1 & 2 & 5 & 10
+			\end{tabular}
+		\end{table}\\
+		Let's assume people are crossing the bridge from the left to the right. \\
+		The goal is to model the problem as the search of a path in a graph.
+
+	\section{Modeling}
+		My first concern was to establish the meaning of a "node" and the weight of the arches. I wanted to model the problem in a way that it's generalizable, I'll take into account simplifications that derive from the fact that we are searching for the minimal path after, on this precise case.\\
+		In this model, each single node represents the number of people standing in the left side of the bridge and the fact they may have the torch or not.\\ It seems useful to name each node using binary notation: the leftmost bit will be 1 if the torch is on the left side, 0 otherwise; each of the remaining 4 bits will relate to the 4 people in the table in the same order from left to right, they will be set to 1 if the person is on the left side, 0 otherwise. \\For instance, $11111$ would be the initial node, $00000$ the final node and $10100$ means that person 2 is on the left side with the torch. \\ 
+		There are 5 bits to represent a node and every combination is possible but the one in which people are all present and the torch is missing and the one in which there is the torch but no one is standing on the left side: the total number of nodes is $2^5 - 2 = 30$. \\
+		Each edge would be bidirectional: people can always go back to where they came from. \\
+		There can not be an arch that connects two states with the same first bit value in common: someone would have crossed the bridge without the torch otherwise.\\
+		There can not be an arch that connects two nodes such that the one with the first bit set to 0 has more bits set to one on the last 4 bits than the state with the first bit set to 1 on its last 4 bits: no one can cross the bridge without the torch.
+		\\
+		There is no arch whose starting point is the same of the ending point. 
+		\\
+		There can not be an arch that connects two states whose last 4 bits have a Hamming distance > 2: the bridge can't hold more than 2 people at a time.
+		\\
+		The weight of an arch is the crossing time value of the person associated to the rightmost bit that changes value from one state to the other connected to the arch. \\Eg. $w_{11111-01001} = 5$, $w_{01001-11101} = 2$, $w_{10001-00000} = 10$. \\
+		This representation could be easily generalized to N people (creating $2^{N+1} - 2$ nodes) and to T person that can cross the bridge modifying the constraint on the Hamming distance with the value T instead of 2.
+		\subsection{Further Considerations}
+			Focusing more on our problem, as we have seen during one classroom, we could avoid building loops if we are searching for the minimum path. It is possible to remove some nodes from the graph and make the arches become one-way edges.\\ 
+			We can remove nodes starting with 0 and having other 3 bits set to 1 and those nodes starting with 1 and having only 1 bit set to 1: the total number of nodes would be $30 - 4 - 4 = 22$.\\
+			The tail of the edges should be on nodes with the first bit set to 1 if the sum of the last 4 bits is decreasing in the next state. \\
+			The tail of the edges should be on nodes with the first bit set to 0 if the sum of the last 4 bits is increasing in the next state.
+
+	\section{Solution}
+		The optimal solution for this problem is 17 minutes.\\
+		It can be obtained by finding the shortest path in the graph from $11111$ to $00000$.\\
+		We can let 1 and 2 go to the other side, than we let 1 go back, we let 4 and 5 go to the right side and 2 go back, than 2 can cross the bridge with 1.\\
+		This way we "hide" part of the delay of person 3.\\
+		The total time used to cross the bridge is $2 + 1 + 10 + 2 + 2 = 17$.
+		
+
+\end{document}
