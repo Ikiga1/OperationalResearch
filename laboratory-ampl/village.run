@@ -1,0 +1,7 @@
+reset;
+option solver './ampl_macosx64/cplex';
+model "./village/village.mod";
+data "./village/village.dat";
+solve;
+display packet1, packet2, dist, indicator;
+display _nvars, _ncons;
