@@ -1,0 +1,79 @@
+\documentclass[1pt]{article}
+\usepackage {tikz}
+\usetikzlibrary {arrows,automata}
+\usepackage{amssymb}
+\usepackage{listings}
+%block scheme
+\usepackage{pdfpages}
+\usepackage{caption}
+%preamble
+\usepackage[nottoc]{tocbibind}
+\usepackage[T1]{fontenc}
+%syllabus check
+\usepackage[italian]{babel}
+\usepackage{graphicx}
+
+\usepackage{amsmath}
+\usepackage{systeme}
+
+
+\def\X#1{$#1$ &\tt\string#1}
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+
+\makeatletter
+\let\@fnsymbol\@arabic
+\makeatother
+\title{\huge \textrm{Closest Antenna Constraint}}
+\date{\textrm{Politecnico di Milano, \\5 December 2018}}
+
+
+\begin{document}
+
+	\pagenumbering{gobble}
+	\begin{titlepage}
+		\maketitle
+	\end{titlepage}
+
+	\pagenumbering{arabic}
+
+	\newpage
+	\section{Introduction to the Problem}
+		Assume that there are some customers and some antennas.\\ Let's define \emph{S} as the set of antennas and \emph{C} as the set of customers.\\\\
+		\textbf{Parameters:}
+		\begin{itemize}
+			\item \emph{f(i)} is the activation cost of one antenna.
+			\item \emph{u(i)} is the capacity of an antenna. 
+			\item \emph{c(i,j)} is the assignment cost for the antenna \emph{i} to the customer \emph{j}..
+			\item \emph{d(i,j)} is the distance from the antenna \emph{i} to the customer \emph{j}.
+		\end{itemize}
+		\textbf{Variables:}
+		\begin{itemize}	
+			\item \emph{x(i,j)} is a variable that assumes the value 1 if the antenna $i$ is serving the customer $j$, 0 otherwise.
+			\item \emph{y(i)} is a binary indicator variable that is equal to 1 only and only if the antenna $i \in S$ is active.
+		\end{itemize}
+		\textbf{Objective Function:}
+		\begin{itemize}
+			\item min $\sum_{i \in S} f(i) y(i) + \sum_{i \in S} \sum_{j \in C} c(i,j) x(i,j)$
+		\end{itemize}
+		\textbf{Constraints:}
+		\begin{itemize}
+			\item $\sum_{i \in S} x(i,j) = 1$ $\forall j \in C$
+			\item $\sum_{j \in C} x(i,j) \leqslant u(i)y(i)$ $\forall i \in S$
+			\item $x(i,j) \leq y(i)$ $\forall i \in S, \forall j \in C$
+		\end{itemize}
+		The goal is to write a constraint that assigns to each customer the closest antenna.
+	\section{Solution}
+		We approach the problem as follows:
+		\begin{itemize}
+			\item We define a new parameter that we call MAX, that is equal to a number that is greater than the maximum value that $d(i,j)$ can be.
+			\item We define the following constraint: \\$\forall i, k \in S, \forall j \in C:$ $d(i,j) x(i,j) \leq d(k,j) + (1-y(k))*MAX$
+		\end{itemize}
+		This way we can select the closest antenna according to the other constraints and exploiting the objective function.\\
+		If $k=i$ than the equality is satisfied and the constraint holds.\\
+		If $k!=i$ than
+		\begin{itemize}
+			\item If $k$ is active: $x(i, j)$ is equal to 1 iff $d(i,j) \leq d(k,j)$ \\(iff $i$ is closer to $j$ than $k$ is).
+			\item If $k$ is not active: $x(i, j)$ can be either 1 or 0.
+		\end{itemize}  
+
+\end{document}
